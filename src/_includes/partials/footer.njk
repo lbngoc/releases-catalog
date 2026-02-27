@@ -1,0 +1,21 @@
+<footer class="site-footer border-t bg-slate-800 text-slate-50">
+  <div class="w-full max-w-5xl mx-auto px-4 py-6 text-sm">
+    <p>
+      © <span id="year"></span>
+      <span class="font-bold">Releases Catalog</span>.
+      Built with Eleventy, Vite, and Alpine.js.
+    </p>
+    <p>
+      <a href="https://github.com/lbngoc/releases-catalog"
+        class="underline hover:text-blue-600"
+        target="_blank" rel="noopener">
+        View on GitHub
+      </a>
+    </p>
+  </div>
+</footer>
+<script>
+  document
+    .getElementById("year")
+    .textContent = new Date().getFullYear();
+</script>

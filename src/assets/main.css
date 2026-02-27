@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+button:hover {
+  @apply hover:cursor-pointer;
+}
+
+/* Markdown formatting classes */
+.markdown h1 {
+  @apply text-xl font-bold mt-4 mb-2 text-slate-900;
+}
+.markdown h2 {
+  @apply text-xl font-medium mt-3 mb-2 text-slate-800;
+}
+.markdown h3 {
+  @apply text-[1.125rem] font-semibold mt-2 mb-2 text-slate-700;
+}
+.markdown strong {
+  @apply font-bold text-slate-900;
+}
+.markdown a {
+  @apply text-blue-600 underline hover:text-blue-800;
+}
+.markdown table {
+  @apply w-full border-collapse my-4;
+}
+.markdown th {
+  @apply bg-slate-100 border border-slate-300 px-3 py-2 text-left font-semibold;
+}
+.markdown td {
+  @apply border border-slate-300 px-3 py-2;
+}
+.markdown pre {
+  @apply bg-slate-900 text-white rounded p-3 overflow-x-auto my-3;
+}
+.markdown code {
+  @apply bg-slate-100 text-slate-800 rounded px-1 py-0.5 font-mono text-sm;
+}
+.markdown ul {
+  @apply list-disc ml-5 mb-2;
+}
+.markdown ol {
+  @apply list-decimal ml-5 mb-2;
+}
+.markdown blockquote {
+  @apply border-l-4 border-slate-300 pl-3 italic text-slate-600 my-3;
+}

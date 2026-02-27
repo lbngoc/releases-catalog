@@ -1,0 +1,13 @@
+---
+layout: layouts/base.njk
+title: Releases Catalog
+---
+
+<div data-app class="min-h-screen flex flex-col bg-white text-slate-900">
+  {% include "partials/header.njk" %}
+  {% include "partials/breadcrumb.njk" %}
+  <main class="flex-1 w-full max-w-5xl mx-auto px-4 pb-12 space-y-6">
+    {% include "partials/release-list.njk" %}
+  </main>
+  {% include "partials/footer.njk" %}
+</div>

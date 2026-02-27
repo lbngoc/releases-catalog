@@ -1,0 +1,27 @@
+{
+  "name": "release-catalog",
+  "version": "1.0.0",
+  "author": "hi@ngoclb.com",
+  "private": true,
+  "type": "module",
+  "description": "A lightweight static release catalog for browsing versioned builds, changelogs, and downloadable artifacts.",
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:vite dev:eleventy",
+    "dev:vite": "vite dev --config vite.config.js --host 127.0.0.1 --port 5173 --clearScreen false",
+    "dev:eleventy": "ELEVENTY_ENV=development eleventy --config=.eleventy.cjs --input=src --output=_site --formats=njk,html --serve --watch --port=8088",
+    "build": "npm run clean && vite build --config vite.config.js && npm run build:eleventy",
+    "build:eleventy": "ELEVENTY_ENV=production eleventy --config=.eleventy.cjs --input=src --output=_site --formats=njk,html",
+    "clean": "rm -rf _site"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.1",
+    "alpinejs": "^3.15.8",
+    "marked": "^11.1.1"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "npm-run-all": "^4.1.5",
+    "tailwindcss": "^4.2.1",
+    "vite": "^7.3.1"
+  }
+}
