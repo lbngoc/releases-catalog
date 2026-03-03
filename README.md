@@ -1,8 +1,10 @@
 # 📦 Releases Catalog
 
+[![Live Demo](https://img.shields.io/badge/demo-live-green)](https://lbngoc.github.io/releases-catalog/)
 [![Version](https://img.shields.io/github/package-json/v/lbngoc/releases-catalog?color=blue)](https://github.com/lbngoc/releases-catalog)
 [![License](https://img.shields.io/github/license/lbngoc/releases-catalog)](LICENSE)
 [![Build](https://img.shields.io/github/actions/workflow/status/lbngoc/releases-catalog/build.yml?branch=main)](https://github.com/lbngoc/releases-catalog/actions)
+
 [![Eleventy](https://img.shields.io/badge/SSG-Eleventy-222222?logo=11ty)](https://www.11ty.dev/)
 [![Vite](https://img.shields.io/badge/Bundler-Vite-646CFF?logo=vite)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Style-TailwindCSS-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
@@ -246,9 +248,3 @@ No server required.
 Pull requests are welcome.
 
 If you plan major changes, please open an issue first to discuss what you would like to change.
-
----
-
-## 📜 License
-
-MIT
