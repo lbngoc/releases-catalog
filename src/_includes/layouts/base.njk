@@ -5,20 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ title or "Releases Catalog" }}</title>
   <!-- Favicon -->
-  <link rel="icon" href="/favicon.svg">
+  <link rel="icon" href="favicon.svg">
   {% if isDev %}
     <script type="module" src="http://localhost:5173/@vite/client"></script>
-    <link id="vite-css" rel="stylesheet" href="http://localhost:5173/assets/main.css" onerror="this.remove();const f=document.createElement('link');f.rel='stylesheet';f.href='/assets/main.css';document.head.appendChild(f);" />
+    <link id="vite-css" rel="stylesheet" href="http://localhost:5173/assets/main.css" onerror="this.remove();const f=document.createElement('link');f.rel='stylesheet';f.href='assets/main.css';document.head.appendChild(f);" />
   {% else %}
-    <link rel="stylesheet" href="/assets/main.css">
+    <link rel="stylesheet" href="assets/main.css">
   {% endif %}
 </head>
 <body class="text-slate-900 antialiased min-h-screen" x-data="catalogApp" id="MainContent">
   {{ content | safe }}
   {% if isDev %}
-    <script type="module" src="http://localhost:5173/assets/main.js" onerror="const s=document.createElement('script');s.src='/assets/main.js';document.body.appendChild(s);"></script>
+    <script type="module" src="http://localhost:5173/assets/main.js" onerror="const s=document.createElement('script');s.src='assets/main.js';document.body.appendChild(s);"></script>
   {% else %}
-    <script src="/assets/main.js"></script>
+    <script src="assets/main.js"></script>
   {% endif %}
 </body>
 </html>
