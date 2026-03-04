@@ -1,4 +1,5 @@
 import { marked } from "marked";
+import { getConfig } from "./config";
 
 export function parseMarkdown(raw) {
   const FRONTMATTER_REGEX = /^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n?/;
@@ -6,7 +7,11 @@ export function parseMarkdown(raw) {
   const match = raw.match(FRONTMATTER_REGEX);
 
   if (!match) {
-    return render(raw);
+    return {
+      frontmatter: {},
+      body: raw,
+      html: render(raw),
+    }
   }
 
   const frontmatterBlock = match[1];
@@ -17,11 +22,7 @@ export function parseMarkdown(raw) {
   return {
     frontmatter,
     body,
-    html: marked.parse(body || "", {
-      mangle: false,
-      headerIds: false,
-      breaks: true,
-    }),
+    html: render(body),
   };
 }
 
@@ -60,15 +61,13 @@ function parseKeyValue(text) {
 }
 
 function render(body) {
-  return {
-    frontmatter: {},
-    body,
-    html: marked.parse(body || "", {
-      mangle: false,
-      headerIds: false,
-      breaks: true,
-    }),
-  };
+  const html = marked.parse(body || "", {
+    mangle: false,
+    headerIds: false,
+    breaks: true,
+  });
+
+  return getConfig().transformChangelogHtml(html);
 }
 
 export function formatDate(value) {

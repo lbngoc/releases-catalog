@@ -115,12 +115,7 @@ Alpine.data("catalogApp", () => ({
     this.changelogs[versionCode] = { status: "loading" };
 
     try {
-      const version = versionCode.substring(0, versionCode.lastIndexOf("."));
-
-      const url =
-        `${this.config.changelogFolder}/` +
-        `${encodeURIComponent(version)}/` +
-        `${this.config.changelogFile}`;
+      const url = this.config.getChangelogUrl(versionCode);
 
       const text = await fetchChangelog(url);
       const parsed = parseMarkdown(text);

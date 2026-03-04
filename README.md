@@ -163,30 +163,188 @@ Behavior:
 
 ## ⚙ Configuration Override
 
-You can override behavior globally:
+The catalog behavior can be customized by defining a global configuration object before the app loads.
+
+Add the following script to your HTML (for example in `index.html`):
 
 ```html
 <script>
 window.catalogConfig = {
   pageSize: 10,
-  catalogCsv: '/catalog.csv',
-  changelogFolder: '/releases',
-  changelogFile: 'CHANGELOG.md',
+  catalogCsv: "/catalog.csv",
+  releasesRelativePath: "/releases",
 
   getAssetIconUrl(asset) {
-    return '/assets/svg/custom.svg';
+    return "/custom-icons/package.svg";
   },
 
   getAssetDownloadUrl(version, asset) {
-    return `/releases/${version}/${asset}`;
+    return `/downloads/${version}/${asset}`;
   },
 
   getAssetDownloadName(version, asset) {
     return asset;
+  },
+
+  getChangelogUrl(versionCode) {
+    const version = versionCode.split(".").slice(0, -1).join(".");
+    return `/releases/${version}/CHANGELOG.md`;
+  },
+
+  transformChangelogHtml(html) {
+    return html;
   }
 };
 </script>
 ```
+
+### Configuration Options
+
+#### `pageSize`
+
+Number of releases displayed per page.
+
+Example:
+
+```
+pageSize: 10
+```
+
+#### `catalogCsv`
+
+Path to the catalog CSV file containing release metadata.
+
+Example:
+
+```
+catalogCsv: "/catalog.csv"
+```
+
+Expected CSV format:
+
+```
+id,version,datetime
+260225100,0.0.2,2026-02-25T00:00:00.000Z
+```
+
+#### `releasesRelativePath`
+
+Base path where release folders and artifacts are located.
+
+Default structure:
+
+```
+releases/
+ ├─ 0.0.1/
+ │   ├─ CHANGELOG.md
+ │   └─ app.apk
+ └─ 0.0.2/
+     ├─ CHANGELOG.md
+     └─ app.apk
+```
+
+Example:
+
+```
+releasesRelativePath: "/releases"
+```
+
+#### `getAssetIconUrl(asset)`
+
+Returns the icon URL used for each downloadable asset.
+
+Useful for customizing icons for different file types.
+
+Example:
+
+```
+getAssetIconUrl(asset) {
+  if (asset.endsWith(".apk")) return "/icons/android.svg";
+  return "/icons/package.svg";
+}
+```
+
+#### `getAssetDownloadUrl(version, asset)`
+
+Generates the download URL for a release artifact.
+
+Example:
+
+```
+getAssetDownloadUrl(version, asset) {
+  return `/downloads/${version}/${asset}`;
+}
+```
+
+#### `getAssetDownloadName(version, asset)`
+
+Controls the filename used when downloading the asset.
+
+Example:
+
+```
+getAssetDownloadName(version, asset) {
+  return `myapp-${version}.apk`;
+}
+```
+
+#### `getChangelogUrl(versionCode)`
+
+Returns the URL for the release `CHANGELOG.md`.
+
+`versionCode` is formatted as:
+
+```
+version.id
+```
+
+Example:
+
+```
+0.0.2.260225100
+```
+
+Example implementation:
+
+```
+getChangelogUrl(versionCode) {
+  const version = versionCode.split(".").slice(0, -1).join(".");
+  return `/releases/${version}/CHANGELOG.md`;
+}
+```
+
+#### `transformChangelogHtml(html)`
+
+Allows post-processing of the rendered changelog HTML.
+
+Useful for:
+
+* auto-linking Jira tickets
+* rewriting URLs
+* sanitizing HTML
+
+Example (auto-link Jira tickets):
+
+```
+transformChangelogHtml(html) {
+  return html.replace(
+    /\b([A-Z]+-\d+)\b/g,
+    (match) =>
+      `<a href="https://your-jira/browse/${match}" target="_blank">${match}</a>`
+  );
+}
+```
+
+### Typical Use Cases
+
+Common reasons to override configuration:
+
+* host release files on a different server
+* customize asset icons
+* change pagination size
+* integrate Jira ticket links
+* rewrite download URLs
+* sanitize changelog HTML
 
 ---
 
