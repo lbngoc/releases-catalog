@@ -12,8 +12,8 @@ Alpine.data("catalogApp", () => ({
   changelogs: {},
   currentPage: 1,
   totalPages: 1,
+  totalItems: 0,
   loading: true,
-  statusMessage: null,
 
   activeHashVersion: null,
   copiedVersion: null,
@@ -25,10 +25,6 @@ Alpine.data("catalogApp", () => ({
   get paginated() {
     const start = (this.currentPage - 1) * this.pageSize;
     return this.releases.slice(start, start + this.pageSize);
-  },
-
-  get totalItems() {
-    return this.releases.length;
   },
 
   get latestVersion() {
@@ -88,8 +84,10 @@ Alpine.data("catalogApp", () => ({
       }));
 
       this.totalPages = Math.ceil(this.releases.length / this.pageSize);
-    } catch {
-      this.statusMessage = "Failed to load release list.";
+      this.totalItems = this.releases.length;
+    } catch (error) {
+      this.totalItems = -1;
+      console.error("loadCatalog", error);
     } finally {
       this.loading = false;
     }
@@ -128,7 +126,7 @@ Alpine.data("catalogApp", () => ({
       this.changelogs[versionCode] = data;
       sessionStorage.setItem(cacheKey, JSON.stringify(data));
     } catch (error) {
-      console.debug("loadChangelog", { versionCode, error });
+      console.error("loadChangelog", versionCode, error);
       this.changelogs[versionCode] = { status: "error" };
     }
   },
@@ -163,6 +161,19 @@ Alpine.data("catalogApp", () => ({
     items.forEach((r) => this.loadChangelog(r.versionCode));
   },
 
+  onDetailsToggle(event, version) {
+    if (event.target.open) {
+      this.setVersionToHash(version);
+    }
+  },
+
+  setVersionToHash(version) {
+    const hash = `#v=${encodeURIComponent(version)}`;
+    this.activeHashVersion = version;
+    history.replaceState(null, "", hash);
+    return hash;
+  },
+
   getVersionFromHash() {
     if (!window.location.hash.startsWith("#v=")) return null;
     return decodeURIComponent(window.location.hash.replace("#v=", ""));
@@ -188,14 +199,11 @@ Alpine.data("catalogApp", () => ({
   },
 
   copySharedUrl(versionCode) {
-    const hash = `#v=${encodeURIComponent(versionCode)}`;
+    const hash = this.setVersionToHash(versionCode);
     const fullUrl = window.location.origin + window.location.pathname + hash;
 
     navigator.clipboard.writeText(fullUrl).then(() => {
-      history.replaceState(null, "", hash);
-      this.activeHashVersion = versionCode;
       this.copiedVersion = versionCode;
-
       setTimeout(() => {
         this.copiedVersion = null;
       }, 1200);

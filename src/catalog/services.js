@@ -10,17 +10,24 @@ export async function fetchCatalog(url) {
     .filter((l) => l && !l.startsWith("#"))
     .map((line, i) => {
       const [id, version, datetime] = line.split(",").map((p) => p?.trim());
-
-      if (!id || !version) throw new Error(`Invalid row ${i + 1}`);
+      const timestamp = new Date(datetime).getTime();
+      if (!id || !version || isNaN(timestamp)) {
+        const error = `Invalid line ${i + 1}`;
+        console.debug("fetchCatalog", { line, error });
+        // throw new Error(error);
+        return null;
+      };
 
       return {
         id,
         version,
         versionCode: `${version}.${id}`,
+        timestamp,
         datetime,
       };
     })
-    .sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+    .filter(Boolean)
+    .sort((a, b) => b.timestamp - a.timestamp);
 }
 
 export async function fetchChangelog(url) {

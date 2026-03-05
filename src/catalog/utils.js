@@ -11,13 +11,12 @@ export function parseMarkdown(raw) {
       frontmatter: {},
       body: raw,
       html: render(raw),
-    }
+    };
   }
 
   const frontmatterBlock = match[1];
   const body = raw.slice(match[0].length);
-
-  const frontmatter = parseKeyValue(frontmatterBlock);
+  const frontmatter = parseFrontmatter(frontmatterBlock);
 
   return {
     frontmatter,
@@ -26,38 +25,61 @@ export function parseMarkdown(raw) {
   };
 }
 
-function parseKeyValue(text) {
+function parseFrontmatter(frontmatterString) {
   const data = {};
-  let currentKey = null;
+  let current = null;
 
-  text.split(/\r?\n/).forEach((line) => {
-    if (!line.trim()) return;
+  frontmatterString.split(/\r?\n/).forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
 
     // array item
-    if (line.trim().startsWith("- ") && currentKey) {
-      if (!Array.isArray(data[currentKey])) {
-        data[currentKey] = [];
-      }
-      data[currentKey].push(line.trim().slice(2).trim());
+    if (trimmed.startsWith("- ") && current) {
+      if (!Array.isArray(data[current])) data[current] = [];
+      data[current].push(parseScalarValue(trimmed.slice(2).trim()));
       return;
     }
 
-    const idx = line.indexOf(":");
+    const idx = trimmed.indexOf(":");
     if (idx === -1) return;
 
-    const key = line.slice(0, idx).trim();
-    const value = line.slice(idx + 1).trim();
+    const key = trimmed.slice(0, idx).trim();
+    let value = trimmed.slice(idx + 1).trim();
 
-    currentKey = key;
+    current = key;
 
-    if (!value) {
+    if (value === "") {
       data[key] = [];
     } else {
-      data[key] = value;
+      data[key] = parseScalarValue(value);
     }
   });
 
   return data;
+}
+
+function parseScalarValue(value) {
+  if (typeof value !== "string") return value;
+
+  value = value.trim();
+
+  if (!value) return value;
+
+  const first = value[0];
+  const last = value[value.length - 1];
+
+  // remove surrounding quotes
+  if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
+    value = value.slice(1, -1);
+
+    // unescape quotes
+    value = value
+      .replace(/\\"/g, '"')
+      .replace(/\\'/g, "'")
+      .replace(/\\\\/g, "\\");
+  }
+
+  return value;
 }
 
 function render(body) {

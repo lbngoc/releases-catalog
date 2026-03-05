@@ -1,17 +1,9 @@
 <section x-init="init()">
-
-  <!-- Status -->
-  <template x-if="statusMessage">
-    <div
-      class="rounded-md border px-4 py-3 text-sm border-red-200 bg-red-50 text-red-700"
-      x-text="statusMessage"></div>
-  </template>
-
-  <div class="space-y-2 md:space-y-6" role="list">
+  <div class="space-y-6" role="list">
 
     <!-- Global Skeleton -->
     <template x-if="loading">
-      <div class="space-y-2 md:space-y-6">
+      <div class="space-y-6">
         <template x-for="i in pageSize" :key="i">
           <div class="grid md:grid-cols-[200px_1fr] gap-2 md:gap-4 animate-pulse">
             <div class="space-y-3 py-4">
@@ -32,10 +24,19 @@
       </div>
     </template>
 
-    <!-- Empty -->
-    <template x-if="!loading && releases.length === 0">
-      <div class="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-        Release list will appear once catalog.csv is populated.
+    <!-- Error  -->
+    <template x-if="!loading && totalItems < 0">
+      <div
+        class="rounded-md border px-4 py-3 text-sm border-red-200 bg-red-50 text-red-700">
+          Failed to load release list.
+      </div>
+    </template>
+
+  <!-- Empty  -->
+    <template x-if="!loading && totalItems === 0">
+      <div
+        class="rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+          Release list will appear once <strong>catalog.csv</strong> is populated.
       </div>
     </template>
 
@@ -44,16 +45,12 @@
       x-for="(release, idx) in paginated"
       :key="(currentPage - 1) * pageSize + idx">
 
-      <div
-        class="grid md:grid-cols-[200px_1fr] gap-2 md:gap-4 transition"
-        >
-
+      <div class="grid md:grid-cols-[200px_1fr] gap-2 md:gap-4 transition">
         <!-- LEFT META -->
-        <div class="text-sm text-slate-500 md:space-y-2 py-2 md:py-4">
-
-          <div class="text-base font-semibold text-slate-800"
-               x-text="release.date"></div>
-
+        <div class="text-sm text-slate-500 md:space-y-2 py-6 border-t border-slate-200 md:border-t-0">
+          <div
+            class="text-base font-semibold text-slate-800"
+            x-text="release.date"></div>
           <div class="text-sm font-medium mb-2 md:mb-4">
             v<span x-text="release.versionCode"></span>
           </div>
@@ -77,16 +74,15 @@
               <svg aria-label="Commit" role="img" class="size-4" viewBox="0 0 16 16">
                 <path d="M11.93 8.5a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"></path>
               </svg>
-              <span class="overflow-hidden text-ellipsis max-w-[75%]" x-text="changelogs[release.versionCode].data.frontmatter.hash"></span>
+              <span class="overflow-hidden text-ellipsis max-w-[80vw] md:max-w-[75%]" x-text="changelogs[release.versionCode].data.frontmatter.hash"></span>
             </div>
           </template>
-
         </div>
 
         <!-- RIGHT CONTENT -->
         <div class="p-4 border rounded-lg text-sm text-slate-700"
-        :class="activeHashVersion === release.versionCode
-          ? 'ring-2 ring-blue-400 ring-offset-2 border-blue-200'
+        :class="activeHashVersion === release.versionCode && changelogs[release.versionCode]?.data
+          ? 'md:ring-2 md:ring-blue-500 md:ring-offset-2 border-blue-200'
           : 'border-slate-300'"
         >
 
@@ -105,14 +101,14 @@
 
           <!-- Error -->
           <template x-if="changelogs[release.versionCode]?.status === 'error'">
-            <p class="text-red-600">Unable to load release notes.</p>
+            <p class="text-red-200 italic">
+              Unable to load release notes.
+            </p>
           </template>
 
           <!-- Loaded -->
           <template x-if="changelogs[release.versionCode]?.status === 'loaded'">
-
             <div :id="'v' + release.versionCode" class="space-y-4">
-
               <!-- Title + Share -->
               <div class="flex justify-between items-start gap-4">
                 <h3 class="text-xl/tight md:text-2xl/tight font-semibold text-slate-900"
@@ -174,10 +170,11 @@
                     :key="asset">
                     <li class="flex items-center gap-2 border-b border-slate-200 last:border-b-0 px-4 py-2">
                       <img :src="getAssetIconUrl(asset)" class="size-4"/>
-                      <a class="text-blue-500 font-medium hover:underline"
-                         :href="getAssetDownloadUrl(release.version, asset)"
-                         download
-                         x-text="getAssetDownloadName(release.version, asset)"></a>
+                      <a
+                        class="text-blue-500 font-medium hover:underline"
+                        :href="getAssetDownloadUrl(release.version, asset)"
+                        download
+                        x-text="getAssetDownloadName(release.version, asset)"></a>
                     </li>
                   </template>
                 </ul>
@@ -185,9 +182,10 @@
 
               <!-- Markdown -->
               <details
-                x-bind:open="activeHashVersion === release.versionCode ? true : null"
+                :open="activeHashVersion === release.versionCode"
+                @toggle="onDetailsToggle($event, release.versionCode)"
                 class="group">
-                <summary class="cursor-pointer flex items-center justify-between py-2" @click="copySharedUrl(release.versionCode)">
+                <summary class="cursor-pointer flex items-center justify-between py-2">
                   <span class="text-xl font-semibold">
                     What's Changed
                   </span>
@@ -201,8 +199,9 @@
                     <path d="M6 9l6 6 6-6"/>
                   </svg>
                 </summary>
-                <div class="markdown border-t border-slate-200 pt-4"
-                    x-html="changelogs[release.versionCode]?.data?.html"></div>
+                <div
+                  class="markdown border-t border-slate-200 pt-4"
+                  x-html="changelogs[release.versionCode]?.data?.html"></div>
               </details>
             </div>
           </template>
