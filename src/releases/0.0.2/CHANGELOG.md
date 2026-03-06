@@ -1,39 +1,37 @@
 ---
-title: Performance & Stability Update
-code: RC-002
+title: Version 0.0.2
+description: Stability improvements and user interface refinements
+code: 260225100
 date: 2026-02-25T00:00:00.000Z
 sprint: 2
-hash: 994f53dc43818721cf587504f59c69e270271b72
+hash: d4e5f6g
 assets:
-  - releases-catalog.dev-0.0.2.260225100.apk
-  - releases-catalog.dev-0.0.2.260225100.aab
-  - releases-catalog.dev-0.0.2.260225100.ipa
+  - release-catalog-0.0.2.apk
+  - release-catalog-0.0.2.zip
 ---
 
 ### 🚀 Enhancements
-- Improved app startup time
-- Reduced memory usage during navigation
-- Added pull-to-refresh on dashboard
 
-### 🐛 Bug Fixes
-- Fixed intermittent logout issue
-- Corrected timezone display bug
-- Fixed incorrect API base URL in production mode
+- Improved application startup performance
+- Refined navigation and interaction behavior
+- Better responsiveness across device sizes
 
-### 🔒 Security
-- Updated dependency versions
-- Added basic request validation layer
+### 🐛 Fixes
 
----
+- Resolved layout alignment issues
+- Fixed minor text formatting inconsistencies
 
-## 📊 Technical Details
+### ⚡ Performance
 
-- Refactored state management logic
-- Improved caching strategy
-- Cleaned up unused components
+- Reduced resource loading overhead
+- Improved rendering performance for long release lists
 
----
+### 📦 Artifacts
 
-## 📦 Notes
+This release includes updated application packages and distribution archives.
 
-Recommended upgrade for all internal testers.
+Example installation:
+
+```bash
+adb install release-catalog-0.0.2.apk
+````

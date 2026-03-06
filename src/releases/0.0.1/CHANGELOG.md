@@ -1,32 +1,26 @@
 ---
-title: Initial Public Release
-description: Just a "test"
-code: RC-001
-date: 2026-02-22T00:00:00.000Z
+title: Initial Release
+description: First public build introducing the basic release catalog interface
+code: 240823536
+date: 2026-02-20T00:00:00.000Z
 sprint: 1
-hash: 994f53dc43818721cf587504f59c69e270271b72
+hash: a1b2c3d
 assets:
-  - releases-catalog.dev-0.0.1.240823536.apk
-  - releases-catalog.dev-0.0.1.240823536.aab
+  - release-catalog-0.0.1.apk
+  - release-catalog-0.0.1.zip
 ---
 
 ### ✨ Features
-- Initial application setup
-- Basic authentication flow
-- Dashboard layout implementation
-- API integration for user profile
 
-### 🐛 Fixes
-- Fixed login button alignment issue RC-123
-- Resolved crash when network request fails
+- Initial application layout
+- Basic release list display from static file `catalog.csv`
+- Artifact download support
 
 ### 🛠 Improvements
-- Optimized bundle size
-- Improved loading performance
-- Enhanced error handling for API responses
+
+- Improved loading behavior
+- Basic UI styling for release items
 
 ---
 
-## 📦 Notes
-
-This is the first public build intended for internal QA testing.
+This release establishes the initial structure for browsing releases and downloading build artifacts.
