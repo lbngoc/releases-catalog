@@ -17,6 +17,9 @@ button:hover {
 .markdown strong {
   @apply font-bold text-slate-900;
 }
+.markdown hr {
+  @apply mt-4 mb-4 border-slate-100;
+}
 .markdown a {
   @apply text-blue-600 underline hover:text-blue-800;
 }
@@ -34,6 +37,9 @@ button:hover {
 }
 .markdown code {
   @apply bg-slate-100 text-slate-800 rounded px-1 py-0.5 font-mono text-sm;
+}
+.markdown pre code {
+  @apply bg-transparent text-white;
 }
 .markdown ul {
   @apply list-disc ml-5 mb-2;
