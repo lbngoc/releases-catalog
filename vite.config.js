@@ -14,15 +14,16 @@ export default defineConfig({
     emptyOutDir: false,
     cssCodeSplit: false,
     assetsDir: 'assets',
+    manifest: true,
     rollupOptions: {
       input: {
         app: path.resolve(root, 'assets', 'main.js'),
       },
       output: {
-        entryFileNames: 'assets/main.js',
-        chunkFileNames: 'assets/[name].js',
+        entryFileNames: 'assets/main-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: (chunkInfo) => {
-          if (chunkInfo.name === 'style.css') return 'assets/main.css';
+          if (chunkInfo.names?.[0] === 'style.css') return 'assets/main-[hash].css';
           return 'assets/[name][extname]';
         }
       }

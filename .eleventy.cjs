@@ -1,3 +1,21 @@
+const fs = require('fs');
+const path = require('path');
+
+function readViteManifest() {
+  try {
+    const raw = fs.readFileSync(path.resolve(__dirname, '_site/.vite/manifest.json'), 'utf-8');
+    const manifest = JSON.parse(raw);
+    const entry = manifest['assets/main.js'];
+    const cssEntry = manifest['style.css'];
+    return {
+      assetJs: entry?.file ?? 'assets/main.js',
+      assetCss: cssEntry?.file ?? entry?.css?.[0] ?? 'assets/main.css',
+    };
+  } catch {
+    return { assetJs: 'assets/main.js', assetCss: 'assets/main.css' };
+  }
+}
+
 module.exports = function (config) {
   // Only treat files ending with .11tydata as data files so metadata.json can be served statically
   config.setDataFileSuffixes(['11tydata']);
@@ -13,7 +31,14 @@ module.exports = function (config) {
   config.addWatchTarget('src/assets/main.css');
   config.addWatchTarget('src/catalog');
 
-  config.addGlobalData('isDev', process.env.ELEVENTY_ENV !== 'production');
+  const isDev = process.env.ELEVENTY_ENV !== 'production';
+  config.addGlobalData('isDev', isDev);
+
+  const { assetJs, assetCss } = isDev
+    ? { assetJs: 'assets/main.js', assetCss: 'assets/main.css' }
+    : readViteManifest();
+  config.addGlobalData('assetJs', assetJs);
+  config.addGlobalData('assetCss', assetCss);
 
   return {
     dir: {
