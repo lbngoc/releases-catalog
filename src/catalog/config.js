@@ -14,9 +14,7 @@ const DEFAULT_CONFIG = {
   },
 
   getAssetDownloadUrl(version, asset) {
-    return `${this.releasesRelativePath}/${encodeURIComponent(
-      version,
-    )}/${encodeURIComponent(asset)}`;
+    return `${this.releasesRelativePath}/${encodeURIComponent(version)}/${encodeURIComponent(asset)}`;
   },
 
   getAssetDownloadName(version, asset) {
@@ -25,10 +23,7 @@ const DEFAULT_CONFIG = {
 
   getChangelogUrl(versionCode) {
     const version = versionCode.substring(0, versionCode.lastIndexOf("."));
-
-    return `${this.releasesRelativePath}/${encodeURIComponent(
-      version,
-    )}/CHANGELOG.md`;
+    return `${this.releasesRelativePath}/${encodeURIComponent(version)}/CHANGELOG.md`;
   },
 
   transformChangelogHtml(html) {
