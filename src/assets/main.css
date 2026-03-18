@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (.dark &);
+
 button:hover {
   @apply hover:cursor-pointer;
 }
@@ -50,3 +52,18 @@ button:hover {
 .markdown blockquote {
   @apply border-l-4 border-slate-300 pl-3 italic text-slate-600 my-3;
 }
+
+/* Dark mode markdown overrides */
+.dark .markdown h1 { @apply text-slate-100; }
+.dark .markdown h2 { @apply text-slate-200; }
+.dark .markdown h3 { @apply text-slate-300; }
+.dark .markdown strong { @apply text-slate-100; }
+.dark .markdown hr { @apply border-slate-700; }
+.dark .markdown a { @apply text-blue-400; }
+.dark .markdown a:hover { @apply text-blue-300; }
+.dark .markdown th { @apply bg-slate-700 border-slate-600 text-slate-100; }
+.dark .markdown td { @apply border-slate-600 text-slate-300; }
+.dark .markdown pre { @apply bg-slate-950; }
+.dark .markdown code { @apply bg-slate-700 text-slate-200; }
+.dark .markdown pre code { @apply bg-transparent text-white; }
+.dark .markdown blockquote { @apply border-slate-600 text-slate-400; }

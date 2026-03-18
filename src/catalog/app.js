@@ -16,7 +16,19 @@ Alpine.data("catalogApp", () => ({
   loading: true,
 
   activeHashVersion: null,
+  autoExpandVersion: null,
   copiedVersion: null,
+
+  darkMode:
+    localStorage.getItem("darkMode") === "true" ||
+    (localStorage.getItem("darkMode") === null &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches),
+
+  toggleDarkMode() {
+    this.darkMode = !this.darkMode;
+    localStorage.setItem("darkMode", this.darkMode);
+    document.documentElement.classList.toggle("dark", this.darkMode);
+  },
 
   get pageSize() {
     return this.config.pageSize;
@@ -45,6 +57,7 @@ Alpine.data("catalogApp", () => ({
   },
 
   async init() {
+    document.documentElement.classList.toggle("dark", this.darkMode);
     await this.loadCatalog();
 
     const hashCode = this.getVersionFromHash();
@@ -58,8 +71,8 @@ Alpine.data("catalogApp", () => ({
         this.activeHashVersion = hashCode;
       }
     } else {
-       // ✅ Auto expand latest release (first item)
-      this.activeHashVersion = this.latestVersion;
+      // Auto expand first item without changing URL hash
+      this.autoExpandVersion = this.latestVersion;
     }
 
     await this.loadCurrentPage();
@@ -136,11 +149,11 @@ Alpine.data("catalogApp", () => ({
 
     this.currentPage = page;
 
-    // XÓA HASH
     if (window.location.hash) {
       history.replaceState(null, "", window.location.pathname);
       this.activeHashVersion = null;
     }
+    this.autoExpandVersion = null;
 
     window.scrollTo({
       top: 0,
@@ -163,11 +176,18 @@ Alpine.data("catalogApp", () => ({
 
   onDetailsToggle(event, version) {
     if (event.target.open) {
+      if (version === this.autoExpandVersion) {
+        // Auto-expanded: highlight item but don't update URL hash
+        this.activeHashVersion = version;
+        this.autoExpandVersion = null;
+        return;
+      }
       this.setVersionToHash(version);
     }
   },
 
   setVersionToHash(version) {
+    this.autoExpandVersion = null;
     const hash = `#v=${encodeURIComponent(version)}`;
     this.activeHashVersion = version;
     history.replaceState(null, "", hash);

@@ -20,13 +20,6 @@ Built with **Eleventy**, **Vite**, **Alpine.js**, and **Tailwind CSS**.
 
 ![Releases Catalog Screenshot](./docs/screenshot.jpeg)
 
-Example preview layout:
-
-- Paginated release list
-- Expandable changelog sections
-- Deep-link highlighting
-- Asset download links
-
 ---
 
 ## ✨ Overview
@@ -56,9 +49,11 @@ Perfect for:
 - 🎯 Unique version identifiers (`versionCode`)
 - 💾 Session-based changelog caching
 - 🔄 Per-release refresh (clear cache & reload)
+- 🌗 Dark mode with system preference detection and manual toggle
 - 📱 Fully responsive layout
 - ⚡ Client-side pagination
 - 🧩 Configurable via `window.catalogConfig`
+- 🏗 `<base href="/">` support for subdirectory deployments
 - 🧱 No backend required
 
 ---
@@ -75,8 +70,7 @@ Perfect for:
 
 ## 📂 Project Structure
 
-```
-
+```text
 src/
 ├── _includes/        # Layouts & Nunjucks partials
 ├── assets/
@@ -94,8 +88,7 @@ src/
 └── favicon.svg
 
 _site/                # Generated output
-
-````
+```
 
 ---
 
@@ -107,25 +100,16 @@ _site/                # Generated output
 #id,version,datetime
 240823526,0.0.1,2024-08-23T10:00:00
 260225100,0.0.2,2025-02-26T10:00:00
-````
-
-Each row generates a unique:
-
 ```
+
+Each row generates a unique `versionCode`:
+
+```js
 versionCode = `${version}.${id}`
+// e.g. 0.0.2.260225100
 ```
 
-Example:
-
-```
-0.0.2.260225100
-```
-
-This ensures:
-
-* Unique deep-linking
-* Stable cache keys
-* No collision if versions repeat
+This ensures unique deep-linking, stable cache keys, and no collision if versions repeat.
 
 ---
 
@@ -133,258 +117,150 @@ This ensures:
 
 Each release folder must match the `version` field:
 
-```
+```text
 releases/
 └── 0.0.2/
     ├── CHANGELOG.md
     └── my-app-0.0.2.apk
 ```
 
-The folder name must equal `version`.
-
 ---
 
 ## 🔗 Deep Linking
 
-You can link directly to a specific release:
+Link directly to a specific release:
 
-```
+```text
 https://example.com/#v=0.0.2.260225100
 ```
 
 Behavior:
 
-* Automatically navigates to correct page
-* Scrolls to release
-* Highlights the release
-* Expands changelog section
+- Automatically navigates to the correct page
+- Scrolls to and highlights the release
+- Expands the changelog section
+
+When no hash is present, the latest release is automatically expanded without modifying the URL.
+
+---
+
+## 🌗 Dark Mode
+
+Dark mode is supported with:
+
+- **System preference detection** — follows `prefers-color-scheme` on first visit
+- **Manual toggle** — sun/moon button in the header
+- **Persistent preference** — stored in `localStorage`
+- **No flash** — inline script applies the class before CSS loads
+
+---
+
+## 🏗 Subdirectory Deployment
+
+The built output includes a `<base href="/">` tag in `_site/index.html`. This tag makes the browser resolve all relative URLs (assets, fetch calls, links) relative to the specified base path.
+
+To deploy under a subdirectory like `https://example.com/myapp/`, change it to:
+
+```html
+<base href="/myapp/">
+```
+
+No rebuild required — edit the built HTML file directly.
+
+> All relative paths in `config.js` (`catalog.csv`, `releases/...`, `assets/svg/...`) are automatically resolved through the `<base>` tag.
 
 ---
 
 ## ⚙ Configuration Override
 
-The catalog behavior can be customized by defining a global configuration object before the app loads.
+Customize behavior by defining `window.catalogConfig` before the app loads. All methods have access to `this` (the merged config object), so `this.releasesRelativePath` and other properties are available inside any overridden function.
 
-Add the following script to your HTML (for example in `index.html`):
+### Configuration Options
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `pageSize` | `number` | `5` | Releases per page |
+| `catalogCsv` | `string` | `"catalog.csv"` | Path or URL to catalog CSV file |
+| `releasesRelativePath` | `string` | `"releases"` | Base path/URL used by URL builder functions |
+| `getAssetIconUrl(asset)` | `function` | — | Icon URL for a given asset filename |
+| `getAssetDownloadUrl(version, asset)` | `function` | — | Download URL for an artifact |
+| `getAssetDownloadName(version, asset)` | `function` | — | Filename hint for download |
+| `getChangelogUrl(versionCode)` | `function` | — | URL for `CHANGELOG.md` |
+| `transformChangelogHtml(html)` | `function` | — | Post-process rendered changelog HTML |
+
+---
+
+### Same-host (relative paths)
+
+Files are served alongside the static site. Relative paths are resolved by the browser via `<base href="...">`, so subdirectory deployments work automatically without any config change.
+
+> Do **not** use a leading `/` — it bypasses `<base href>` and breaks subdirectory setups.
 
 ```html
 <script>
 window.catalogConfig = {
   pageSize: 10,
-  catalogCsv: "/catalog.csv",
-  releasesRelativePath: "/releases",
-
-  getAssetIconUrl(asset) {
-    return "/custom-icons/package.svg";
-  },
-
-  getAssetDownloadUrl(version, asset) {
-    return `/downloads/${version}/${asset}`;
-  },
+  catalogCsv: "catalog.csv",        // resolved via <base href>
+  releasesRelativePath: "releases",  // resolved via <base href>
 
   getAssetDownloadName(version, asset) {
-    return asset;
-  },
-
-  getChangelogUrl(versionCode) {
-    const version = versionCode.split(".").slice(0, -1).join(".");
-    return `/releases/${version}/CHANGELOG.md`;
+    return `myapp-${version}.apk`;
   },
 
   transformChangelogHtml(html) {
-    return html;
+    return html.replace(
+      /\b([A-Z]+-\d+)\b/g,
+      (match) => `<a href="https://your-jira/browse/${match}" target="_blank">${match}</a>`
+    );
   }
 };
 </script>
 ```
 
-### Configuration Options
+---
 
-#### `pageSize`
+### CDN / External Storage
 
-Number of releases displayed per page.
+Full URLs (`https://...`) are **not** affected by `<base href>` — the browser uses them as-is. Setting `catalogCsv` and `releasesRelativePath` to full URLs is enough; the URL builder functions (`getAssetDownloadUrl`, `getChangelogUrl`) use `this.releasesRelativePath` automatically and require no override.
 
-Example:
-
-```
-pageSize: 10
-```
-
-#### `catalogCsv`
-
-Path to the catalog CSV file containing release metadata.
-
-Example:
-
-```
-catalogCsv: "/catalog.csv"
+```html
+<script>
+window.catalogConfig = {
+  catalogCsv: "https://cdn.example.com/my-app/catalog.csv",
+  releasesRelativePath: "https://cdn.example.com/my-app/releases",
+};
+</script>
 ```
 
-Expected CSV format:
-
-```
-id,version,datetime
-260225100,0.0.2,2026-02-25T00:00:00.000Z
-```
-
-#### `releasesRelativePath`
-
-Base path where release folders and artifacts are located.
-
-Default structure:
-
-```
-releases/
- ├─ 0.0.1/
- │   ├─ CHANGELOG.md
- │   └─ app.apk
- └─ 0.0.2/
-     ├─ CHANGELOG.md
-     └─ app.apk
-```
-
-Example:
-
-```
-releasesRelativePath: "/releases"
-```
-
-#### `getAssetIconUrl(asset)`
-
-Returns the icon URL used for each downloadable asset.
-
-Useful for customizing icons for different file types.
-
-Example:
-
-```
-getAssetIconUrl(asset) {
-  if (asset.endsWith(".apk")) return "/icons/android.svg";
-  return "/icons/package.svg";
-}
-```
-
-#### `getAssetDownloadUrl(version, asset)`
-
-Generates the download URL for a release artifact.
-
-Example:
-
-```
-getAssetDownloadUrl(version, asset) {
-  return `/downloads/${version}/${asset}`;
-}
-```
-
-#### `getAssetDownloadName(version, asset)`
-
-Controls the filename used when downloading the asset.
-
-Example:
-
-```
-getAssetDownloadName(version, asset) {
-  return `myapp-${version}.apk`;
-}
-```
-
-#### `getChangelogUrl(versionCode)`
-
-Returns the URL for the release `CHANGELOG.md`.
-
-`versionCode` is formatted as:
-
-```
-version.id
-```
-
-Example:
-
-```
-0.0.2.260225100
-```
-
-Example implementation:
-
-```
-getChangelogUrl(versionCode) {
-  const version = versionCode.split(".").slice(0, -1).join(".");
-  return `/releases/${version}/CHANGELOG.md`;
-}
-```
-
-#### `transformChangelogHtml(html)`
-
-Allows post-processing of the rendered changelog HTML.
-
-Useful for:
-
-* auto-linking Jira tickets
-* rewriting URLs
-* sanitizing HTML
-
-Example (auto-link Jira tickets):
-
-```
-transformChangelogHtml(html) {
-  return html.replace(
-    /\b([A-Z]+-\d+)\b/g,
-    (match) =>
-      `<a href="https://your-jira/browse/${match}" target="_blank">${match}</a>`
-  );
-}
-```
-
-### Typical Use Cases
-
-Common reasons to override configuration:
-
-* host release files on a different server
-* customize asset icons
-* change pagination size
-* integrate Jira ticket links
-* rewrite download URLs
-* sanitize changelog HTML
+> **CORS:** The CDN must allow cross-origin requests (`Access-Control-Allow-Origin`) since `catalog.csv` and `CHANGELOG.md` are loaded via `fetch()`.
+>
+> **Download:** The HTML `download` attribute only works for same-origin URLs. For cross-origin assets, configure the CDN to send `Content-Disposition: attachment` to force a file download.
 
 ---
 
 ## 🧪 Development
 
-Install dependencies:
-
 ```bash
 npm install
-```
-
-Run development:
-
-```bash
 npm run dev
 ```
 
-Build production:
+## 🏗 Build
 
 ```bash
 npm run build
-```
-
-Output directory:
-
-```
-_site/
+# Output: _site/
 ```
 
 ---
 
 ## 📦 Deployment
 
-Because this is a fully static site, it can be deployed to:
+Static output in `_site/` — deploy to any static host:
 
-* GitHub Pages
-* Netlify
-* Vercel
-* Cloudflare Pages
-* Any static hosting provider
+- GitHub Pages
+- Netlify / Vercel / Cloudflare Pages
+- Any static hosting provider
 
 No server required.
 
@@ -394,15 +270,13 @@ No server required.
 
 1. `catalog.csv` provides release metadata.
 2. Releases are paginated client-side.
-3. CHANGELOG files are fetched on demand.
+3. CHANGELOG files are fetched on demand and cached in `sessionStorage`.
 4. Markdown is parsed and rendered dynamically.
-5. Results are cached in `sessionStorage`.
-6. UI state is controlled via hash (`#v=`).
+5. UI state (active release, page) is driven by the URL hash (`#v=`).
+6. Dark mode state is managed via `localStorage` and a class on `<html>`.
 
 ---
 
 ## 🤝 Contributing
 
-Pull requests are welcome.
-
-If you plan major changes, please open an issue first to discuss what you would like to change.
+Pull requests are welcome. For major changes, please open an issue first.
