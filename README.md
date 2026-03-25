@@ -53,7 +53,7 @@ Perfect for:
 - 📱 Fully responsive layout
 - ⚡ Client-side pagination
 - 🧩 Configurable via `window.catalogConfig`
-- 🏗 `<base href="/">` support for subdirectory deployments
+- 🏗 Relative paths — works in any subdirectory without config
 - 🧱 No backend required
 
 ---
@@ -157,17 +157,9 @@ Dark mode is supported with:
 
 ## 🏗 Subdirectory Deployment
 
-The built output includes a `<base href="/">` tag in `_site/index.html`. This tag makes the browser resolve all relative URLs (assets, fetch calls, links) relative to the specified base path.
+All asset and data paths in the app use **relative URLs** (no leading `/`), so the site works out of the box when deployed under any subdirectory (e.g. `https://example.com/myapp/`) — no configuration or post-build edits needed.
 
-To deploy under a subdirectory like `https://example.com/myapp/`, change it to:
-
-```html
-<base href="/myapp/">
-```
-
-No rebuild required — edit the built HTML file directly.
-
-> All relative paths in `config.js` (`catalog.csv`, `releases/...`, `assets/svg/...`) are automatically resolved through the `<base>` tag.
+> Keep paths in `config.js` relative (`catalog.csv`, `releases/...`, `assets/svg/...`) to preserve this behavior. Absolute paths (starting with `/`) will bypass the subdirectory and break.
 
 ---
 
@@ -192,16 +184,16 @@ Customize behavior by defining `window.catalogConfig` before the app loads. All 
 
 ### Same-host (relative paths)
 
-Files are served alongside the static site. Relative paths are resolved by the browser via `<base href="...">`, so subdirectory deployments work automatically without any config change.
+Files are served alongside the static site. Relative paths are resolved by the browser from the current page URL, so subdirectory deployments work automatically without any config change.
 
-> Do **not** use a leading `/` — it bypasses `<base href>` and breaks subdirectory setups.
+> Do **not** use a leading `/` — absolute paths ignore the deployment subdirectory and will break.
 
 ```html
 <script>
 window.catalogConfig = {
   pageSize: 10,
-  catalogCsv: "catalog.csv",        // resolved via <base href>
-  releasesRelativePath: "releases",  // resolved via <base href>
+  catalogCsv: "catalog.csv",        // relative to page URL
+  releasesRelativePath: "releases",  // relative to page URL
 
   getAssetDownloadName(version, asset) {
     return `myapp-${version}.apk`;
@@ -221,7 +213,7 @@ window.catalogConfig = {
 
 ### CDN / External Storage
 
-Full URLs (`https://...`) are **not** affected by `<base href>` — the browser uses them as-is. Setting `catalogCsv` and `releasesRelativePath` to full URLs is enough; the URL builder functions (`getAssetDownloadUrl`, `getChangelogUrl`) use `this.releasesRelativePath` automatically and require no override.
+Full URLs (`https://...`) are used as-is by the browser. Setting `catalogCsv` and `releasesRelativePath` to full URLs is enough; the URL builder functions (`getAssetDownloadUrl`, `getChangelogUrl`) use `this.releasesRelativePath` automatically and require no override.
 
 ```html
 <script>
