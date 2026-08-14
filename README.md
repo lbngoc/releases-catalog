@@ -135,6 +135,14 @@ assets:
   - https://cdn.example.com/my-app/0.0.2/my-app-0.0.2.ipa
 ```
 
+An asset ending in `.plist` (a local filename or a full URL) is treated as an iOS OTA install manifest — its download link is automatically wrapped as `itms-services://?action=download-manifest&url=...` so tapping it on an iOS device triggers the install prompt instead of just downloading the plist file.
+
+```yaml
+assets:
+  - app.plist
+  - my-app-0.0.2.ipa
+```
+
 ---
 
 ## 🔗 Deep Linking

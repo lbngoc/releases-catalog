@@ -11,6 +11,16 @@ function extractFileName(value) {
   }
 }
 
+function isPlist(asset) {
+  return extractFileName(asset).toLowerCase().endsWith(".plist");
+}
+
+function toAbsoluteUrl(value) {
+  if (isAbsoluteUrl(value)) return value;
+  if (typeof window === "undefined") return value;
+  return new URL(value, window.location.href).href;
+}
+
 const DEFAULT_CONFIG = {
   pageSize: 5,
   catalogCsv: "catalog.csv",
@@ -29,8 +39,17 @@ const DEFAULT_CONFIG = {
   },
 
   getAssetDownloadUrl(version, asset) {
-    if (isAbsoluteUrl(asset)) return asset;
-    return `${this.releasesRelativePath}/${encodeURIComponent(version)}/${encodeURIComponent(asset)}`;
+    const url = isAbsoluteUrl(asset)
+      ? asset
+      : `${this.releasesRelativePath}/${encodeURIComponent(version)}/${encodeURIComponent(asset)}`;
+
+    // iOS OTA install: Safari only triggers the install prompt for a .plist
+    // manifest when linked via itms-services, never a plain https link.
+    if (isPlist(asset)) {
+      return `itms-services://?action=download-manifest&url=${toAbsoluteUrl(url)}`;
+    }
+
+    return url;
   },
 
   getAssetDownloadName(version, asset) {
