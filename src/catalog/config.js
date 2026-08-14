@@ -1,23 +1,40 @@
+function isAbsoluteUrl(value) {
+  return /^(https?:)?\/\//i.test(value);
+}
+
+function extractFileName(value) {
+  const last = value.split(/[?#]/)[0].split("/").filter(Boolean).pop() || value;
+  try {
+    return decodeURIComponent(last);
+  } catch {
+    return last;
+  }
+}
+
 const DEFAULT_CONFIG = {
   pageSize: 5,
   catalogCsv: "catalog.csv",
   releasesRelativePath: "releases",
 
   getAssetIconUrl(asset) {
-    if (asset.includes(".zip")) return "assets/svg/package.svg";
-    if (asset.includes(".ipa") || asset.includes(".plist"))
+    const name = isAbsoluteUrl(asset) ? extractFileName(asset) : asset;
+
+    if (name.includes(".zip")) return "assets/svg/package.svg";
+    if (name.includes(".ipa") || name.includes(".plist"))
       return "assets/svg/ios.svg";
-    if (asset.includes(".apk") || asset.includes(".aab"))
+    if (name.includes(".apk") || name.includes(".aab"))
       return "assets/svg/android.svg";
 
     return "assets/svg/unknown.svg";
   },
 
   getAssetDownloadUrl(version, asset) {
+    if (isAbsoluteUrl(asset)) return asset;
     return `${this.releasesRelativePath}/${encodeURIComponent(version)}/${encodeURIComponent(asset)}`;
   },
 
   getAssetDownloadName(version, asset) {
+    if (isAbsoluteUrl(asset)) return extractFileName(asset);
     return asset;
   },
 

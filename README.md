@@ -124,6 +124,17 @@ releases/
     └── my-app-0.0.2.apk
 ```
 
+Each entry in the `CHANGELOG.md` frontmatter `assets` list can be either:
+
+- a filename alongside `CHANGELOG.md` (e.g. `my-app-0.0.2.apk`), resolved relative to the release folder, or
+- a full URL (e.g. `https://cdn.example.com/my-app/0.0.2/my-app-0.0.2.apk`), used as-is for the download link, with the download name auto-extracted from the URL's last path segment.
+
+```yaml
+assets:
+  - my-app-0.0.2.apk
+  - https://cdn.example.com/my-app/0.0.2/my-app-0.0.2.ipa
+```
+
 ---
 
 ## 🔗 Deep Linking
