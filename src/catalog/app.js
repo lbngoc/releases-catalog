@@ -39,6 +39,29 @@ Alpine.data("catalogApp", () => ({
     return this.releases.slice(start, start + this.pageSize);
   },
 
+  get paginationItems() {
+    const total = this.totalPages;
+    const current = this.currentPage;
+    const siblingCount = 1;
+    const windowSize = siblingCount * 2 + 1;
+
+    const start = Math.max(1, Math.min(current - siblingCount, total - windowSize + 1));
+    const end = Math.min(total, start + windowSize - 1);
+
+    const pages = new Set([1, total]);
+    for (let p = start; p <= end; p++) pages.add(p);
+
+    const sorted = [...pages].sort((a, b) => a - b);
+
+    const items = [];
+    sorted.forEach((page, i) => {
+      if (i > 0 && page - sorted[i - 1] > 1) items.push("...");
+      items.push(page);
+    });
+
+    return items;
+  },
+
   get latestVersion() {
     if (this.totalItems > 0) {
       return this.releases.slice(0, 1).pop()?.versionCode;

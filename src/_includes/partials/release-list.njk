@@ -220,14 +220,17 @@
         Previous
       </button>
 
-      <template x-for="page in totalPages" :key="page">
+      <template x-for="(item, idx) in paginationItems" :key="idx + '-' + item">
         <button
           class="px-3 py-1 border rounded-md"
-          :class="page === currentPage
+          :class="item === currentPage
             ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-100'
+            : item === '...'
+            ? 'border-transparent text-slate-400 dark:text-slate-500 cursor-default'
             : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-400 dark:text-slate-300'"
-          @click="changePage(page)"
-          x-text="page"></button>
+          :disabled="item === '...'"
+          @click="item !== '...' && changePage(item)"
+          x-text="item === '...' ? '…' : item"></button>
       </template>
 
       <button
