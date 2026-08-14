@@ -67,6 +67,16 @@ const DEFAULT_CONFIG = {
   },
 };
 
+if (typeof window !== "undefined") {
+  // Lets a window.catalogConfig override delegate back to the built-in
+  // behavior for cases it doesn't want to special-case, e.g.:
+  //   getAssetDownloadName(version, asset) {
+  //     if (asset === "app.plist") return "MyApp.app";
+  //     return window.catalogConfigDefaults.getAssetDownloadName.call(this, version, asset);
+  //   }
+  window.catalogConfigDefaults = DEFAULT_CONFIG;
+}
+
 export function getConfig() {
   if (typeof window === "undefined") return DEFAULT_CONFIG;
   return { ...DEFAULT_CONFIG, ...(window.catalogConfig || {}) };

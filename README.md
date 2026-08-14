@@ -186,6 +186,19 @@ All asset and data paths in the app use **relative URLs** (no leading `/`), so t
 
 Customize behavior by defining `window.catalogConfig` before the app loads. All methods have access to `this` (the merged config object), so `this.releasesRelativePath` and other properties are available inside any overridden function.
 
+Overriding a function replaces the built-in one entirely — it isn't merged. To special-case one thing and fall through to the default behavior for everything else, call `window.catalogConfigDefaults` (populated by the app script, so it's safe to reference inside your override even though `window.catalogConfig` is usually defined earlier in `<head>` — the function body only runs later, once the app is up):
+
+```html
+<script>
+window.catalogConfig = {
+  getAssetDownloadName(version, asset) {
+    if (asset === "app.plist") return "MyApp.app";
+    return window.catalogConfigDefaults.getAssetDownloadName.call(this, version, asset);
+  }
+};
+</script>
+```
+
 ### Configuration Options
 
 | Option | Type | Default | Description |
